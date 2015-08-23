@@ -1,0 +1,73 @@
+---
+title       : Predicting exercise types. As easy as apple pie.
+subtitle    : 
+author      : 
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+```{r echo=FALSE}
+library(caret);
+library(rpart);
+library(randomForest);
+
+set.seed(42);
+
+load("modelObjectState.rda");
+
+trainData <- read.csv("pml-training.csv", na.strings=c("NA","#DIV/0!", ""));
+trainData <- trainData[,colSums(is.na(trainData)) == 0];
+
+
+irreleventIdxs <- grep("(*timestamp*)|(user_name)|(*_window)|(X)", names(trainData));
+trainData   <- trainData[, -irreleventIdxs];
+trainIdxs <- createDataPartition(y=trainData$classe, p=0.75, list=FALSE);
+subTest   <- trainData[-trainIdxs, ];
+```
+
+```{r}
+p2 <- predict(modelObject, subTest, type = "class");
+accuracy <- sum(p2 == subTest$classe)/length(p2);
+oosError <- 1 - accuracy;
+oosErrorPercentage <- paste0(round(oosError * 100, digits = 2), "%");
+print(paste0("oosPercentage: ", oosErrorPercentage));
+```
+
+## Problem
+
+We did great prediction model as part of 'Practical machine learning course': out of Sample error is `r oosErrorPercentage` only. But it is too ascetic, and is not intended for wide audience.
+
+--- .class #id 
+
+## Solution
+
+Let's convert it to web-app, so everybody can use it.
+
+--- .class #id 
+
+
+## Development problems
+
+-We can't just copy all the core logic into server.R since model training takes a lot of time. 
+
+-Train files are huge. 
+
+Let's just pretrain model. This will decrease server responce time dramatically, and decrease application size.
+Note: test data is required still
+
+--- .class #id 
+
+
+## Conclusion
+
+Try our ACME application today. 
+
+The one and only AI-capable application to predict exercice type with Out-Of-Sample error as low as `r oosError`, for free. Knowledge of the ancients within your browser. 
+
+Unbelievable!
+
